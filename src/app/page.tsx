@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // <<== เพิ่มตรงนี้
-import { motion, AnimatePresence } from "framer-motion";
 import {
   handlePlayerChange,
   addPlayer,

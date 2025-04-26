@@ -28,7 +28,7 @@ export default function GameScreen() {
 
     useEffect(() => {
         if (timeLast === 0) {
-            let timeLimit = localStorage.getItem("timeLimit") || '""';
+            const timeLimit = localStorage.getItem("timeLimit") || '""';
             setTimeLeft(parseInt(timeLimit, 10) * 60);
         }
 

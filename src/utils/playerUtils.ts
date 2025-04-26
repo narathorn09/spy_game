@@ -10,7 +10,7 @@ export const handlePlayerChange = (
   players: { name: string; isSpy: boolean; role: string }[],
   index: number,
   value: string,
-  setPlayers: (players: any) => void
+  setPlayers: (players: { name: string; isSpy: boolean; role: string }[]) => void
 ) => {
   const updatedPlayers = [...players];
   updatedPlayers[index].name = value;
@@ -20,7 +20,7 @@ export const handlePlayerChange = (
 // เพิ่มผู้เล่น
 export const addPlayer = (
   players: { name: string; isSpy: boolean; role: string }[],
-  setPlayers: (players: any) => void
+  setPlayers: (players: { name: string; isSpy: boolean; role: string }[]) => void
 ) => {
   setPlayers([...players, { name: "", isSpy: false, role: "" }]);
 };
@@ -29,7 +29,7 @@ export const addPlayer = (
 export const removePlayer = (
   players: { name: string; isSpy: boolean; role: string }[],
   index: number,
-  setPlayers: (players: any) => void
+  setPlayers: (players: { name: string; isSpy: boolean; role: string }[]) => void
 ) => {
   const updatedPlayers = [...players];
   updatedPlayers.splice(index, 1);
@@ -59,35 +59,35 @@ export const startGame = (
     }
   }
 
-// สุ่ม Role (ไม่เอาเรียง index)
-const nonSpyPlayers = players.filter((_, index) => !spyIndexes.includes(index));
+  // สุ่ม Role (ไม่เอาเรียง index)
+  const nonSpyPlayers = players.filter((_, index) => !spyIndexes.includes(index));
 
-// เลือก Role เท่ากับจำนวน non-spy แล้วสับแบบสุ่ม
-const availableRoles = selectedLocation.roles.slice(0, nonSpyPlayers.length);
-const shuffledRoles = availableRoles.sort(() => Math.random() - 0.5);
+  // เลือก Role เท่ากับจำนวน non-spy แล้วสับแบบสุ่ม
+  const availableRoles = selectedLocation.roles.slice(0, nonSpyPlayers.length);
+  const shuffledRoles = availableRoles.sort(() => Math.random() - 0.5);
 
-const updatedPlayers = players.map((player, index) => {
-  if (spyIndexes.includes(index)) {
-    return {
-      ...player,
-      isSpy: true,
-      role: "Spy"
-    };
-  } else {
-    const randomRoleIndex = Math.floor(Math.random() * shuffledRoles.length);
-    const assignedRole = shuffledRoles.splice(randomRoleIndex, 1)[0]; // เอาแล้วลบออก เพื่อไม่ให้ซ้ำ
-    return {
-      ...player,
-      isSpy: false,
-      role: assignedRole
-    };
-  }
-});
+  const updatedPlayers = players.map((player, index) => {
+    if (spyIndexes.includes(index)) {
+      return {
+        ...player,
+        isSpy: true,
+        role: "Spy"
+      };
+    } else {
+      const randomRoleIndex = Math.floor(Math.random() * shuffledRoles.length);
+      const assignedRole = shuffledRoles.splice(randomRoleIndex, 1)[0]; // เอาแล้วลบออก เพื่อไม่ให้ซ้ำ
+      return {
+        ...player,
+        isSpy: false,
+        role: assignedRole
+      };
+    }
+  });
 
-console.log("🔎 ผู้เล่น:", updatedPlayers);
-console.log("📍 สถานที่:", selectedLocation);
+  console.log("🔎 ผู้เล่น:", updatedPlayers);
+  console.log("📍 สถานที่:", selectedLocation);
 
-localStorage.setItem("players", JSON.stringify(updatedPlayers));
-localStorage.setItem("selectedLocation", JSON.stringify(selectedLocation));
+  localStorage.setItem("players", JSON.stringify(updatedPlayers));
+  localStorage.setItem("selectedLocation", JSON.stringify(selectedLocation));
 };
 
