@@ -1,102 +1,150 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // <<== เพิ่มตรงนี้
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  handlePlayerChange,
+  addPlayer,
+  removePlayer,
+  startGame,
+  isReadyToStart
+} from "../utils/playerUtils";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [players, setPlayers] = useState([
+    { name: "", isSpy: false, role: "" },
+    { name: "", isSpy: false, role: "" },
+    { name: "", isSpy: false, role: "" }
+  ]);
+  const [spyNum, setSpyNum] = useState<number>(1);
+  const [timeLimit, setTimeLimit] = useState<number>(5);
+  const router = useRouter();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  const isReadyToStartCheck = isReadyToStart(players);
+
+  const handleStartGame = () => {
+    if (isReadyToStartCheck) {
+      startGame(players, spyNum);
+      localStorage.setItem("timeLimit", timeLimit.toString());
+      router.push("/game"); // <<== ไปหน้าใหม่ "/game"
+    }
+  };
+
+  useEffect(() => {
+    const playersData = JSON.parse(localStorage.getItem("players"));
+    if (playersData?.length > 0) {
+      setPlayers(playersData);
+    }
+
+  }, []);
+
+  return (
+    <div className="min-h-screen p-8 sm:p-16 bg-gray-900 text-white font-sans">
+      <header className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-green-400">🎮 เกมสายลับ (Spy Game)</h1>
+        <p className="text-lg text-gray-300">
+          ค้นหาสายลับ ทำภารกิจให้สำเร็จ อย่าไว้ใจใครง่าย ๆ
+        </p>
+      </header>
+
+      <main className="max-w-2xl mx-auto flex flex-col gap-8">
+        {/* ผู้เล่น */}
+        <div className="bg-gray-800 p-6 rounded-2xl shadow-md">
+          <h2 className="text-2xl font-semibold text-green-300 mb-4">
+            ใส่ชื่อนักเล่น
+          </h2>
+
+          {players.map((player, index) => (
+            <div key={index} className="flex items-center gap-2 mb-2">
+              <input
+                type="text"
+                placeholder={`ผู้เล่นคนที่ ${index + 1}`}
+                value={player.name}
+                onChange={(e) =>
+                  handlePlayerChange(players, index, e.target.value, setPlayers)
+                }
+                className="flex-18 p-2 rounded bg-gray-700 border-none text-white"
+              />
+              {players.length > 3 && (
+                <button
+                  onClick={() => removePlayer(players, index, setPlayers)}
+                  className="flex-1 bg-red-500 hover:bg-red-600 p-2 rounded"
+                >
+                  -
+                </button>
+              )}
+            </div>
+          ))}
+          <div className="flex gap-2 mt-5">
+            {players.length < 10 && (
+              <button
+                onClick={() => addPlayer(players, setPlayers)}
+                className="flex-1 bg-blue-500 hover:bg-blue-600 p-2 rounded"
+              >
+                + เพิ่มผู้เล่น
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* เลือกจำนวนสายลับ */}
+        <div className="bg-gray-800 p-6 rounded-2xl shadow-md">
+          <h2 className="text-2xl font-semibold text-green-300 mb-4">
+            จำนวน SPY
+          </h2>
+          <div className="flex flex-wrap gap-4 mt-5">
+            {[1, 2].map((num) => (
+              <label key={num} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="spyNum"
+                  value={num}
+                  checked={spyNum === num}
+                  onChange={() => setSpyNum(num)}
+                  className="accent-green-300"
+                />
+                <span>{num} Spy</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* ตั้งเวลาเล่นเกม */}
+        <div className="bg-gray-800 p-6 rounded-2xl shadow-md">
+          <h2 className="text-2xl font-semibold text-green-300 mb-4">
+            กำหนดเวลาเล่น
+          </h2>
+          <div className="flex items-center gap-4">
+            <input
+              type="number"
+              min={1}
+              value={timeLimit}
+              onChange={(e) => setTimeLimit(parseInt(e.target.value))}
+              className="w-24 p-2 rounded bg-gray-700 border-none text-white"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <span>นาที</span>
+          </div>
+        </div>
+
+
+        {/* ปุ่มเริ่มเกม */}
+        <div className="flex gap-2 mt-2">
+          <button
+            onClick={handleStartGame}
+            disabled={!isReadyToStart(players)}
+            className={`flex-1 p-2 rounded ${!isReadyToStart(players)
+              ? "bg-gray-500 cursor-not-allowed"
+              : "bg-green-500 hover:bg-green-600"
+              }`}
           >
-            Read our docs
-          </a>
+            เริ่มเกม
+          </button>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      <footer className="mt-16 text-center text-sm text-gray-500">
+        <p>FNNz</p>
       </footer>
     </div>
   );
