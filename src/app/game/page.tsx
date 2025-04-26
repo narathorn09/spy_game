@@ -20,7 +20,7 @@ export default function GameScreen() {
         const playersData = localStorage.getItem("players");
         const locationData = localStorage.getItem("selectedLocation");
         if (playersData) {
-            const loadedPlayers = JSON.parse(playersData).map((p: any) => ({ ...p, hasSeenRole: false }));
+            const loadedPlayers = JSON.parse(playersData).map((p: { name: string; isSpy: boolean; role: string; hasSeenRole: boolean }) => ({ ...p, hasSeenRole: false }));
             setPlayers(loadedPlayers);
         }
         if (locationData) setSelectedLocation(JSON.parse(locationData));
