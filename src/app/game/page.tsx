@@ -51,7 +51,7 @@ export default function GameScreen() {
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [isRunning, isPaused]); // 👈 ต้องใส่ isPaused ใน dependency ด้วย
+    }, [isRunning, isPaused, timeLast]); // 👈 ต้องใส่ isPaused ใน dependency ด้วย
 
     const formatTime = (seconds: number) => {
         const m = Math.floor(seconds / 60).toString().padStart(2, "0");
