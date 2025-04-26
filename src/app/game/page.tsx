@@ -28,9 +28,8 @@ export default function GameScreen() {
 
     useEffect(() => {
         if (timeLast === 0) {
-            let timeLimit = localStorage.getItem("timeLimit");
-            timeLimit = parseInt(timeLimit, 10) * 60;
-            setTimeLeft(timeLimit);
+            let timeLimit = localStorage.getItem("timeLimit") || '""';
+            setTimeLeft(parseInt(timeLimit, 10) * 60);
         }
 
         if (!isRunning || isPaused) {

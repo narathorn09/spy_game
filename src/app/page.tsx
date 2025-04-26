@@ -32,7 +32,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const playersData = JSON.parse(localStorage.getItem("players"));
+    const playersData = JSON.parse(localStorage.getItem("players") || '""');
     if (playersData?.length > 0) {
       setPlayers(playersData);
     }
