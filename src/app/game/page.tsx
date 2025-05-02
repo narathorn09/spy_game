@@ -96,17 +96,24 @@ export default function GameScreen() {
                 {/* Main player list */}
                 <main className="max-w-xl mx-auto flex flex-col gap-4">
                     {players.map((player, idx) => (
-                        <div key={idx} className="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow">
-                            <span>{player.name}</span>
+                        <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            className="flex items-center justify-between bg-gray-800 p-4 rounded-2xl shadow-md transition duration-300"
+                        >
+                            <span className="text-lg font-medium">{player.name}</span>
                             {!player.hasSeenRole && (
                                 <button
                                     onClick={() => handleViewRole(idx)}
-                                    className="text-green-300 hover:text-green-400"
+                                    className="text-green-400 hover:text-green-300 hover:cursor-pointer transition duration-200"
                                 >
                                     <Eye className="w-6 h-6" />
                                 </button>
                             )}
-                        </div>
+                        </motion.div>
+
                     ))}
                 </main>
             </div>}
@@ -121,16 +128,16 @@ export default function GameScreen() {
                         exit={{ opacity: 0 }}
                     >
                         <motion.div
-                            className="bg-gray-800 p-6 rounded-xl max-w-sm w-full text-center"
-                            initial={{ scale: 0.8 }}
-                            animate={{ scale: 1 }}
-                            exit={{ scale: 0.8 }}
+                            className="bg-gray-900 p-6 rounded-2xl text-center shadow-lg border border-gray-700 w-xs"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
                         >
                             <h2 className="text-2xl font-bold mb-4">ข้อมูลของคุณ</h2>
                             {selectedPlayer?.isSpy ? (
                                 <>
                                     <p className="text-red-400 text-xl mb-2">
-                                        คุณคือ <b>Spy</b> 🕵️‍♂️
+                                        คุณคือ <b>Spy</b>
                                     </p>
                                     <p className="text-gray-400">คุณไม่รู้สถานที่</p>
                                     {players.filter(p => p.isSpy && p.name !== selectedPlayer.name).length > 0 && (
@@ -180,7 +187,7 @@ export default function GameScreen() {
 
             {/* Countdown */}
             {isRunning && !gameEnded && (
-                <div className="text-6xl font-mono mb-8 flex items-center justify-center p-4 mt-10">
+                <div className="text-6xl font-mono font-bold mb-10 flex items-center justify-center p-4 rounded-xl shadow-inner mt-10">
                     {formatTime(timeLeft)}
                 </div>
             )}
@@ -190,21 +197,22 @@ export default function GameScreen() {
                 <div className="mt-10 text-center">
                     {!isPaused ? (
                         <button
-                            className="bg-yellow-500 hover:bg-yellow-600 px-6 py-3 rounded text-xl font-bold"
+                            className="bg-yellow-500 hover:bg-yellow-600 transition duration-200 px-6 py-3 rounded-xl text-lg font-semibold shadow"
                             onClick={stopTimer}
                         >
                             หยุดเวลา ⏸️
                         </button>
+
                     ) : (
                         <button
-                            className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded text-xl font-bold"
+                            className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-xl text-xl font-bold"
                             onClick={resumeTimer}
                         >
                             นับเวลาต่อ ▶️
                         </button>
                     )}
                     <button
-                        className="bg-red-500 hover:bg-red-600 px-6 py-3 rounded text-xl font-bold ml-4"
+                        className="bg-red-500 hover:bg-red-600 px-6 py-3 rounded-xl text-xl font-bold ml-4"
                         onClick={endGame}
                     >
                         จบเกม 🚨
@@ -216,12 +224,15 @@ export default function GameScreen() {
             {/* Game ended reveal */}
             {gameEnded && (
                 <div className="mt-10 text-center">
-                    <h2 className="text-2xl font-bold text-white">เกมจบแล้ว! 🎉</h2>
-                    <p className="text-xl text-white mt-4">
+
+                    <h1 className="text-5xl font-extrabold text-white text-center">
+                        เกมจบแล้ว!
+                    </h1>
+                    <p className="text-xl text-blue-400 mt-4 text-center">
                         สถานที่คือ: <b>{selectedLocation?.Location}</b>
                     </p>
                     <div className="mt-6 flex justify-center items-center">
-                        <div className="p-4 bg-gray-800 p-4 rounded-lg shadow">
+                        <div className="p-8 bg-gray-800 pl-10 pr-10 rounded-lg shadow">
                             {players.map((player, idx) => (
                                 <div key={idx} className="grid grid-cols-2 gap-4 mb-2">
                                     <p className={`text-lg text-start text-red-400 ${player.isSpy
@@ -237,7 +248,7 @@ export default function GameScreen() {
                         </div>
                     </div>
                     <button
-                        className="mt-8 bg-green-600 hover:bg-green-700 px-6 py-3 rounded text-xl font-bold"
+                        className="mt-8 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl text-xl font-bold"
                         onClick={() => window.location.href = "/"} // กลับไปหน้าหลัก
                     >
                         กลับไปหน้าหลัก
