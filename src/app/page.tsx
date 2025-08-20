@@ -10,7 +10,11 @@ import {
   isReadyToStart
 } from "../utils/playerUtils";
 import { motion } from "framer-motion";
-import KawaiiMascot from "./components/KawaiiMascot";
+import dynamic from "next/dynamic";
+
+const KawaiiMascot = dynamic(() => import("./components/KawaiiMascot"), {
+  ssr: false,
+});
 
 export default function Home() {
   const [players, setPlayers] = useState([
