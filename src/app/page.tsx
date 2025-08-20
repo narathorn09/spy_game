@@ -10,6 +10,7 @@ import {
   isReadyToStart
 } from "../utils/playerUtils";
 import { motion } from "framer-motion";
+import data from "../json/data.json";
 
 export default function Home() {
   const [players, setPlayers] = useState([
@@ -20,6 +21,8 @@ export default function Home() {
   const [spyNum, setSpyNum] = useState<number>(1);
   const [timeLimit, setTimeLimit] = useState<number>(5);
   const router = useRouter();
+
+  const sampleRoles = data.flatMap((loc) => loc.roles).slice(0, 12);
 
   const isReadyToStartCheck = isReadyToStart(players);
 
@@ -147,6 +150,26 @@ export default function Home() {
               className="w-24 p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-400 transition"
             />
             <span className="text-gray-300">นาที</span>
+          </div>
+        </motion.section>
+
+        {/* ตัวละคร */}
+        <motion.section
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.35 }}
+          className="bg-gray-800 p-6 rounded-2xl shadow-lg"
+        >
+          <h2 className="text-2xl font-semibold text-green-300 mb-4">ตัวละคร</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {sampleRoles.map((role) => (
+              <span
+                key={role}
+                className="bg-gray-700 text-center p-2 rounded-lg"
+              >
+                {role}
+              </span>
+            ))}
           </div>
         </motion.section>
 
