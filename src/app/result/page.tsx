@@ -1,10 +1,11 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import BottomNav from "../components/BottomNav";
 
-export default function ResultPage() {
+function ResultContent() {
   const router = useRouter();
   const params = useSearchParams();
   const success = params.get("success") === "true";
@@ -32,5 +33,13 @@ export default function ResultPage() {
       </motion.div>
       <BottomNav />
     </div>
+  );
+}
+
+export default function ResultPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResultContent />
+    </Suspense>
   );
 }
