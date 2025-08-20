@@ -10,6 +10,7 @@ import {
   isReadyToStart
 } from "../utils/playerUtils";
 import { motion } from "framer-motion";
+import KawaiiMascot from "./components/KawaiiMascot";
 
 export default function Home() {
   const [players, setPlayers] = useState([
@@ -174,6 +175,7 @@ export default function Home() {
       <footer className="mt-16 text-center text-sm text-gray-500">
         <p>FNNz</p>
       </footer>
+      <KawaiiMascot />
     </div>
   );
 }
