@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye } from "lucide-react";
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
 
 export default function GameScreen() {
     const [players, setPlayers] = useState<{ name: string; isSpy: boolean; role: string; hasSeenRole: boolean }[]>([]);
@@ -12,46 +13,26 @@ export default function GameScreen() {
     const [allSeen, setAllSeen] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
     const [isPaused, setIsPaused] = useState(false); // 👈 เพิ่ม state สำหรับเช็คว่าหยุดอยู่ไหม
+    const [duration, setDuration] = useState(0);
     const [timeLeft, setTimeLeft] = useState(0);
-    const [timeLast, setTimeLast] = useState(0);
     const [gameEnded, setGameEnded] = useState(false);
 
     useEffect(() => {
         const playersData = localStorage.getItem("players");
         const locationData = localStorage.getItem("selectedLocation");
+        const timeLimit = localStorage.getItem("timeLimit");
+
         if (playersData) {
             const loadedPlayers = JSON.parse(playersData).map((p: { name: string; isSpy: boolean; role: string; hasSeenRole: boolean }) => ({ ...p, hasSeenRole: false }));
             setPlayers(loadedPlayers);
         }
         if (locationData) setSelectedLocation(JSON.parse(locationData));
+        if (timeLimit) {
+            const total = parseInt(timeLimit, 10) * 60;
+            setDuration(total);
+            setTimeLeft(total);
+        }
     }, []);
-
-    useEffect(() => {
-        if (timeLast === 0) {
-            const timeLimit = localStorage.getItem("timeLimit") || '""';
-            setTimeLeft(parseInt(timeLimit, 10) * 60);
-        }
-
-        if (!isRunning || isPaused) {
-            setTimeLeft(timeLast);
-            return; // 👈 เช็คว่าต้อง isRunning และ !isPaused
-        }
-
-        const interval = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev <= 1) {
-                    clearInterval(interval);
-                    setIsRunning(false);
-                    setGameEnded(true);
-                    return 0;
-                }
-                setTimeLast(prev - 1);
-                return prev - 1;
-            });
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [isRunning, isPaused, timeLast]); // 👈 ต้องใส่ isPaused ใน dependency ด้วย
 
     const formatTime = (seconds: number) => {
         const m = Math.floor(seconds / 60).toString().padStart(2, "0");
@@ -85,6 +66,8 @@ export default function GameScreen() {
         setIsPaused(false);
         setGameEnded(true);
     };
+
+    const shake = timeLeft <= 5 ? 12 : 6;
 
     return (
         <div className="min-h-screen bg-gray-900 text-white p-8">
@@ -187,9 +170,32 @@ export default function GameScreen() {
 
             {/* Countdown */}
             {isRunning && !gameEnded && (
-                <div className="text-6xl font-mono font-bold mb-10 flex items-center justify-center p-4 rounded-xl shadow-inner mt-10">
-                    {formatTime(timeLeft)}
-                </div>
+                <motion.div
+                    className="flex justify-center mt-10"
+                    animate={timeLeft <= 10 ? { x: [0, -shake, shake, -shake, shake, 0] } : {}}
+                    transition={timeLeft <= 10 ? { duration: 0.5, repeat: Infinity, repeatType: "loop" } : {}}
+                >
+                    <CountdownCircleTimer
+                        isPlaying={!isPaused}
+                        duration={duration}
+                        initialRemainingTime={timeLeft}
+                        colors={["#10B981", "#FBBF24", "#EF4444"]}
+                        colorsTime={[duration, duration / 2, 0]}
+                        size={200}
+                        strokeWidth={12}
+                        onUpdate={(remainingTime) => setTimeLeft(remainingTime)}
+                        onComplete={() => {
+                            setIsRunning(false);
+                            setGameEnded(true);
+                        }}
+                    >
+                        {({ remainingTime }) => (
+                            <span className="text-5xl font-mono font-bold">
+                                {formatTime(remainingTime)}
+                            </span>
+                        )}
+                    </CountdownCircleTimer>
+                </motion.div>
             )}
 
             {/* Running buttons */}
